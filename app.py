@@ -7,7 +7,7 @@ st.set_page_config(page_title="EcoIrrigate", layout="wide")
 st.title("🌿 EcoIrrigate - Smart Solar Drip Irrigation System")
 
 # --- USER INPUT (Threshold Control) ---
-threshold = st.slider("Set Moisture Threshold (%)", 0, 100, 40)
+threshold = st.slider("Set Moisture Threshold (%)", 0, 100, 60)
 
 # --- Simulated Sensor Data ---
 moisture = random.randint(20, 80)
