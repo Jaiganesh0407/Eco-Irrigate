@@ -366,20 +366,35 @@ if col8.button("Force Start Irrigation"):
 if col9.button("Stop Irrigation"):
     st.error("Manual Override: Pump OFF")
 
-# --- CHARTS ---
-st.subheader("⚡ Energy Flow")
-st.area_chart({
-    "Produced": [solar]*10,
-    "Used": [used_energy]*10,
-    "Stored": [battery]*10
-})
+# --- WATER ANALYTICS ---
+st.markdown("---")
+st.markdown("## 💧 Water Analytics (Today)")
 
-st.subheader("📊 Water Comparison")
-st.bar_chart({
-    "Traditional": traditional_water,
-    "EcoIrrigate": water_used
-})
+# Ensure values exist
+st.write(f"DEBUG → Used: {water_used}, Traditional: {traditional_water}, Saved: {water_saved}")
 
-# --- AUTO REFRESH ---
-time.sleep(2)
-st.rerun()
+col5, col6, col7 = st.columns(3)
+
+with col5:
+    st.markdown(f"""
+    <div class="card">
+        <div class="metric">{water_used} L</div>
+        <div class="label">Water Used Today</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col6:
+    st.markdown(f"""
+    <div class="card">
+        <div class="metric">{traditional_water} L</div>
+        <div class="label">Traditional Usage</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col7:
+    st.markdown(f"""
+    <div class="card">
+        <div class="metric">{water_saved} L</div>
+        <div class="label">Water Saved</div>
+    </div>
+    """, unsafe_allow_html=True)
