@@ -4,72 +4,105 @@ import time
 
 st.set_page_config(page_title="EcoIrrigate", layout="wide")
 
-# --- CUSTOM CSS (FUTURISTIC UI) ---
+# --- ADVANCED CSS ---
 st.markdown("""
 <style>
-body {
-    background-color: #0b0f1a;
+
+/* Background gradient */
+.stApp {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     color: white;
 }
 
-.big-title {
-    font-size: 40px;
-    font-weight: bold;
-    color: #00ff9f;
+/* Title */
+.title {
     text-align: center;
-    margin-bottom: 20px;
+    font-size: 48px;
+    font-weight: 700;
+    color: #00ffcc;
+    margin-bottom: 10px;
 }
 
+/* Subtitle */
+.subtitle {
+    text-align: center;
+    color: #cfcfcf;
+    margin-bottom: 30px;
+}
+
+/* Glass card */
 .card {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255,255,255,0.08);
+    padding: 25px;
     border-radius: 20px;
-    padding: 20px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 0 20px rgba(0,255,159,0.2);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 30px rgba(0,255,200,0.15);
     text-align: center;
+    transition: 0.3s;
 }
 
+.card:hover {
+    transform: scale(1.05);
+}
+
+/* Metric value */
 .metric {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
-    color: #00ff9f;
+    color: #00ffcc;
 }
 
+/* Label */
 .label {
+    color: #bbb;
     font-size: 14px;
-    color: #aaa;
 }
 
-.pump-on {
-    color: #00ff9f;
-    font-weight: bold;
+/* Status dot */
+.status-on {
+    color: #00ff88;
     font-size: 20px;
+    font-weight: bold;
 }
 
-.pump-off {
+.status-off {
     color: #ff4b4b;
-    font-weight: bold;
     font-size: 20px;
+    font-weight: bold;
 }
+
+/* Buttons */
+.stButton button {
+    background: linear-gradient(90deg, #00ffcc, #00ccff);
+    color: black;
+    border-radius: 10px;
+    height: 50px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.stButton button:hover {
+    transform: scale(1.05);
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# --- TITLE ---
-st.markdown('<div class="big-title">🌿 EcoIrrigate</div>', unsafe_allow_html=True)
+# --- HEADER ---
+st.markdown('<div class="title">🌿 EcoIrrigate</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Smart Solar-Powered Irrigation Control System</div>', unsafe_allow_html=True)
 
-# --- THRESHOLD ---
-threshold = st.slider("Set Moisture Threshold (%)", 0, 100, 55)
+# --- DATA ---
+MIN_MOISTURE = 50
 
-# --- SIMULATED DATA ---
 moisture = random.randint(20, 80)
 solar = random.randint(800, 1500)
 used = random.randint(200, 700)
 battery = solar - used
 
-# --- AUTO LOGIC ---
-pump = "ON" if moisture < threshold else "OFF"
+pump = "ON" if moisture < MIN_MOISTURE else "OFF"
 
-# --- METRIC CARDS ---
+# --- CARDS ---
 col1, col2, col3, col4 = st.columns(4)
 
 col1.markdown(f"""
@@ -82,7 +115,7 @@ col1.markdown(f"""
 col2.markdown(f"""
 <div class="card">
     <div class="metric">{solar} Wh</div>
-    <div class="label">Solar Energy</div>
+    <div class="label">Solar Generated</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -96,35 +129,43 @@ col3.markdown(f"""
 col4.markdown(f"""
 <div class="card">
     <div class="metric">{battery} Wh</div>
-    <div class="label">Battery</div>
+    <div class="label">Battery Storage</div>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
 
-# --- PUMP STATUS ---
-st.subheader("💧 Irrigation Status")
+# --- STATUS ---
+st.subheader("💧 Irrigation System Status")
 
 if pump == "ON":
-    st.markdown('<div class="pump-on">🟢 Pump ON (Auto)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="status-on">🟢 Pump ACTIVE (Auto Irrigation Running)</div>', unsafe_allow_html=True)
 else:
-    st.markdown('<div class="pump-off">🔴 Pump OFF</div>', unsafe_allow_html=True)
+    st.markdown('<div class="status-off">🔴 Pump OFF (Soil Moisture OK)</div>', unsafe_allow_html=True)
+
+# --- ALERT LOGIC ---
+if moisture < 40:
+    st.error("🚨 Critical Dry Soil! Immediate irrigation required")
+elif moisture < 50:
+    st.warning("⚠️ Soil drying - irrigation active")
+else:
+    st.success("✅ Soil moisture optimal")
 
 # --- BATTERY BAR ---
-st.subheader("🔋 Battery Level")
+st.subheader("🔋 Battery Status")
 battery_percent = int((battery / 1500) * 100)
 st.progress(min(battery_percent, 100))
 
-# --- BUTTONS ---
-st.subheader("🕹 Manual Control")
+# --- CONTROL PANEL ---
+st.subheader("🎛 Control Panel")
 
 col5, col6 = st.columns(2)
 
-if col5.button("Force ON"):
-    st.success("Pump manually turned ON")
+if col5.button("Force Start Irrigation"):
+    st.success("Manual Override: Pump ON")
 
-if col6.button("Force OFF"):
-    st.error("Pump manually turned OFF")
+if col6.button("Stop Irrigation"):
+    st.error("Manual Override: Pump OFF")
 
 # --- CHART ---
 st.subheader("⚡ Energy Flow")
@@ -134,6 +175,6 @@ st.area_chart({
     "Stored": [battery]*10
 })
 
-# --- REFRESH ---
+# --- AUTO REFRESH ---
 time.sleep(2)
 st.rerun()
