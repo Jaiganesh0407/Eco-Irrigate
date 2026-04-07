@@ -1,4 +1,3 @@
-
 import streamlit as st
 import random
 import time
@@ -7,49 +6,66 @@ st.set_page_config(page_title="EcoIrrigate", layout="wide")
 
 st.title("🌿 EcoIrrigate - Smart Solar Drip Irrigation System")
 
-# Simulated data (replace with API later)
-data = {
-    "moisture": random.randint(30, 80),
-    "solar_produced": random.randint(800, 1500),
-    "energy_used": random.randint(200, 700),
-    "battery_level": random.randint(300, 900),
-    "pump": random.choice(["ON", "OFF"])
-}
+# --- USER INPUT (Threshold Control) ---
+threshold = st.slider("Set Moisture Threshold (%)", 0, 100, 40)
 
+# --- Simulated Sensor Data ---
+moisture = random.randint(20, 80)
+solar_produced = random.randint(800, 1500)
+energy_used = random.randint(200, 700)
+battery_level = solar_produced - energy_used
+
+# --- AUTO IRRIGATION LOGIC ---
+if moisture < threshold:
+    pump_status = "ON"
+else:
+    pump_status = "OFF"
+
+# --- DISPLAY METRICS ---
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("🌱 Soil Moisture (%)", data["moisture"])
-col2.metric("☀️ Solar Energy Produced (Wh)", data["solar_produced"])
-col3.metric("⚡ Energy Used (Wh)", data["energy_used"])
-col4.metric("🔋 Battery Storage (Wh)", data["battery_level"])
+col1.metric("🌱 Current Moisture (%)", moisture)
+col2.metric("☀️ Solar Energy Produced (Wh)", solar_produced)
+col3.metric("⚡ Energy Used (Wh)", energy_used)
+col4.metric("🔋 Battery Storage (Wh)", battery_level)
 
 st.markdown("---")
 
-st.subheader("💧 Irrigation Control")
+# --- IRRIGATION STATUS ---
+st.subheader("💧 Irrigation Status")
 
-if data["pump"] == "ON":
-    st.success("Pump is ON")
+if pump_status == "ON":
+    st.success(f"Pump is ON (Moisture {moisture}% < Threshold {threshold}%)")
 else:
-    st.error("Pump is OFF")
-
-if st.button("Turn ON Pump"):
-    st.success("Pump turned ON (simulated)")
-
-if st.button("Turn OFF Pump"):
-    st.error("Pump turned OFF (simulated)")
+    st.error(f"Pump is OFF (Moisture {moisture}% ≥ Threshold {threshold}%)")
 
 st.markdown("---")
 
+# --- MANUAL OVERRIDE ---
+st.subheader("🕹 Manual Control (Override Auto)")
+
+col5, col6 = st.columns(2)
+
+if col5.button("Force ON"):
+    st.success("Pump manually turned ON")
+
+if col6.button("Force OFF"):
+    st.error("Pump manually turned OFF")
+
+st.markdown("---")
+
+# --- ENERGY CHART ---
 st.subheader("⚡ Energy Overview")
-energy_data = {
-    "Produced": data["solar_produced"],
-    "Used": data["energy_used"],
-    "Stored": data["battery_level"]
-}
-st.bar_chart(energy_data)
+st.bar_chart({
+    "Produced": solar_produced,
+    "Used": energy_used,
+    "Stored": battery_level
+})
 
-st.subheader("🌱 Soil Moisture Trend")
-st.line_chart([random.randint(30, 80) for _ in range(10)])
+# --- MOISTURE TREND ---
+st.subheader("🌱 Moisture Trend")
+st.line_chart([random.randint(20, 80) for _ in range(10)])
 
+# --- AUTO REFRESH ---
 time.sleep(2)
 st.rerun()
